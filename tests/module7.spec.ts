@@ -5,7 +5,7 @@ import CartPage from '../pages/CartPage';
 import CheckoutPage from '../pages/CheckoutPage';
 import OrderComplete from '../pages/OrderComplete';
 import MyOrder from '../pages/MyOrderPage';
-test.only('module 7', async ({ page }) => {
+test('module 7', async ({ page }) => {
   let EMAIL: string = "donottrackmeplz@gmail.com"
 
   const loginPageObject = new LoginPage(page);

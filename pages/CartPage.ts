@@ -1,6 +1,5 @@
 import { expect } from '@playwright/test';
 import { Locator, Page } from "playwright";
-import { execPath } from 'process';
 
 export default class CartPage {
     readonly page: Page;
