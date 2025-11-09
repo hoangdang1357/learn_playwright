@@ -5,6 +5,7 @@ import CartPage from '../pages/CartPage';
 import CheckoutPage from '../pages/CheckoutPage';
 import OrderComplete from '../pages/OrderComplete';
 import MyOrder from '../pages/MyOrderPage';
+import APIUtils from './utils/APIUtils';
 import { log } from 'console';
 import { CLIENT_RENEG_LIMIT } from 'tls';
 
@@ -13,36 +14,21 @@ let PASSWORD: string = "123123@Ab"
 let loginPayload = { userEmail: EMAIL, userPassword: PASSWORD }
 let createOrderPayload = { "orders": [{ "country": "Vietnam", "productOrderedId": "68a961719320a140fe1ca57c" }] }
 let token: string = "";
-let orderId;
+let orderId: string;
 
 test.beforeAll(async ({ browser }) => {
   const apiContext = await request.newContext();
-  // make api call to login
-  const loginResponse = await apiContext.post("https://rahulshettyacademy.com/api/ecom/auth/login", { data: loginPayload })
-  expect((loginResponse).ok()).toBeTruthy();
-  const loginResponseJson = await loginResponse.json();
-  token = loginResponseJson.token ?? "";
-  console.log(token);
+  const APIUtilsObject = new APIUtils(apiContext);
 
-  // also need to send headers to show that I am authenticated
-  const orderResponse = await apiContext.post("https://rahulshettyacademy.com/api/ecom/order/create-order", {
-    data: createOrderPayload, headers: {
-      "Authorization": token,
-      "Content-type": "application/json"
-    }
-  })
-
-  const orderResponseJson = await orderResponse.json()
-  orderId = orderResponseJson.orders[0];
-  
-
+  token = await APIUtilsObject.getToken();
+  orderId = await APIUtilsObject.createOrder(createOrderPayload);
 
 })
 
 
 
 
-test('module 7', async ({ page }) => {
+test.only('module 7', async ({ page }) => {
 
   const loginPageObject = new LoginPage(page);
   const dashboardPageObject = new DashboardPage(page);
@@ -58,24 +44,24 @@ test('module 7', async ({ page }) => {
 
   await loginPageObject.gotoLink();
 
-  await dashboardPageObject.clickAddToCart("ZARA COAT 3");
-  await dashboardPageObject.navigateCartPage();
-  await page.locator("div li").first().waitFor();
-  await cartPageObject.expectProductName("ZARA COAT 3");
-  await cartPageObject.clickCheckout();
-  await checkoutPageObject.expectEmail(EMAIL);
-  await checkoutPageObject.typeCountry("viet");
-  await checkoutPageObject.clickPlaceOrder();
-  await orderComplete.expectTitle();
-  let orderID: string = await orderComplete.logCode();
-  await page.pause();
+  //   await dashboardPageObject.clickAddToCart("ZARA COAT 3");
+  //   await dashboardPageObject.navigateCartPage();
+  //   await page.locator("div li").first().waitFor();
+  //   await cartPageObject.expectProductName("ZARA COAT 3");
+  //   await cartPageObject.clickCheckout();
+  //   await checkoutPageObject.expectEmail(EMAIL);
+  //   await checkoutPageObject.typeCountry("viet");
+  //   await checkoutPageObject.clickPlaceOrder();
+  //   await orderComplete.expectTitle();
+
+  //   await page.pause();
   await orderComplete.navigateOrderPage();
 
   const rows = await page.locator("tbody tr");
 
   for (let index = 0; index < await rows.count(); index++) {
     const rowOrderID = (await rows.nth(index).locator("th").textContent())?.trim() || "";
-    if (orderID.includes(rowOrderID)) {
+    if (orderId.includes(rowOrderID)) {
       await rows.nth(index).locator("button", { hasText: 'View' }).click();
     }
   }
