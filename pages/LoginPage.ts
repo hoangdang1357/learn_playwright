@@ -17,6 +17,12 @@ export default class LoginPage {
         await this.page.goto("https://rahulshettyacademy.com/client/#/auth/login");
     }
 
+    async fillEmailAndPasswordAndSubmit(email: string, password: string) {
+        await this.emailField.fill(email);
+        await this.passwordField.fill(password);
+        await this.submitButton.click();
+    }
+
     async fillEmail(email: string) {
         await this.emailField.fill(email)
     }
